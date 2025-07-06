@@ -1,8 +1,11 @@
-import { financialAgent } from "./agents/financial-agent";
+import { getSwapAgent } from "./agents/swap-agent";
 
 async function main() {
-	const response = await financialAgent.run({
-		messages: [{ role: "user", content: "Convert 100 USD to EUR." }],
+	const swapAgent = await getSwapAgent();
+	const response = await swapAgent.run({
+		messages: [
+			{ role: "user", content: "What is the current price of NEAR in USD?" },
+		],
 	});
 	console.log(response.content);
 }
