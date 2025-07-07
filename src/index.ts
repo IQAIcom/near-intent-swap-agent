@@ -1,8 +1,11 @@
 import { cancel, intro, isCancel, outro, spinner, text } from "@clack/prompts";
-import { AgentBuilder, InMemorySessionService, McpToolset } from "@iqai/adk";
+import {
+	AgentBuilder,
+	InMemorySessionService,
+	McpNearIntentSwaps,
+} from "@iqai/adk";
 import { bold, cyan, dim, green, red, yellow } from "colorette";
 import dedent from "dedent";
-import { env } from "./env";
 
 async function main() {
 	intro(bold(cyan("🚀 NEAR Intent Swap Agent CLI")));
@@ -11,18 +14,7 @@ async function main() {
 	s.start("Initializing agent...");
 
 	// Setup NEAR Intent Swaps tools
-	const toolset = new McpToolset({
-		name: "Near Intent Swaps MCP Client",
-		description: "Client for Near Intent Swaps",
-		debug: env.DEBUG,
-		retryOptions: { maxRetries: 2, initialDelay: 200 },
-		transport: {
-			mode: "stdio",
-			command: "npx",
-			args: ["-y", "@iqai/mcp-near-intent-swaps"],
-			env: { PATH: env.PATH },
-		},
-	});
+	const toolset = McpNearIntentSwaps();
 
 	const tools = await toolset.getTools();
 
