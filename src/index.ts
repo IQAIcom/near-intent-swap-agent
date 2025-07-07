@@ -6,6 +6,8 @@ import {
 } from "@iqai/adk";
 import { bold, cyan, dim, green, red, yellow } from "colorette";
 import dedent from "dedent";
+import * as dotenv from "dotenv";
+dotenv.config();
 
 async function main() {
 	intro(bold(cyan("🚀 NEAR Intent Swap Agent CLI")));
