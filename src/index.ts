@@ -16,7 +16,11 @@ async function main() {
 	s.start("Initializing agent...");
 
 	// Setup NEAR Intent Swaps tools
-	const toolset = McpNearIntentSwaps();
+	const toolset = McpNearIntentSwaps({
+		env: {
+			NEAR_SWAP_JWT_TOKEN: process.env.NEAR_SWAP_JWT_TOKEN,
+		},
+	});
 
 	const tools = await toolset.getTools();
 
