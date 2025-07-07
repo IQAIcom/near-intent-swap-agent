@@ -1,6 +1,7 @@
 import { cancel, intro, isCancel, outro, spinner, text } from "@clack/prompts";
 import { AgentBuilder, InMemorySessionService, McpToolset } from "@iqai/adk";
 import { bold, cyan, dim, green, red, yellow } from "colorette";
+import dedent from "dedent";
 import { env } from "./env";
 
 async function main() {
@@ -27,15 +28,16 @@ async function main() {
 		const tools = await toolset.getTools();
 
 		// Create agent with session management
-		const { runner, session } = await AgentBuilder.create("near-swap-agent")
+		const { runner, session } = await AgentBuilder.create("near_swap_agent")
 			.withModel("gemini-2.0-flash")
 			.withDescription(
 				"Expert assistant for NEAR token swaps and DeFi operations",
 			)
-			.withInstruction(`
+			.withInstruction(dedent`
 				You are a helpful assistant for NEAR Intent Swaps.
 				Help users with cross-chain token swaps using the available tools.
 				Always prioritize user safety and explain processes clearly.
+				Don't exit the loop unless you have a valid response.
 			`)
 			.withTools(...tools)
 			.withSession(
