@@ -26,7 +26,7 @@ async function main() {
 
 	// Create agent with session management
 	const { runner, session } = await AgentBuilder.create("near_swap_agent")
-		.withModel("gemini-2.0-flash")
+		.withModel("gpt-4o-mini")
 		.withDescription(
 			"Expert assistant for NEAR token swaps and DeFi operations",
 		)
@@ -35,6 +35,25 @@ async function main() {
 			Help users with cross-chain token swaps using the available tools.
 			Always prioritize user safety and explain processes clearly.
 			Don't exit the loop unless you have a valid response.
+			IMPORTANT:
+			when inputting amount in, always make sure you use the decimals mentioned in the origin token metadata.
+			FOR EXAMPLE:
+			say you are getting a quote from swapping 1000 usdt to wNear,
+			usdt uses 6 decimals, so you need to input 1000 * 10^6 = 1000000000, ignore the tool param description,ALWAYS PASS IN PROPER WEI AMOUNT USING THE BASE DECIMALS OF THE ORIGIN TOKEN.
+			ALWAYS CONSIDER DECIMAL SCALING!
+			for USDT (6 decimals):
+			for input of 1000$ -> 1000 * 10^6 = 1000000000
+			for input of 10$ -> 10 * 10^6 = 10000000
+			for input of 1$ -> 1 * 10^6 = 1000000
+
+			for wNEAR (24 decimals):
+			for input of 1000 wNEAR -> 1000 * 10^24 = 1000000000000000000000000
+			for input of 10 wNEAR -> 10 * 10^24 = 100000000000000000000000
+			for input of 1 wNEAR -> 1 * 10^24 = 10000000000000000000000
+
+			SIMILARLY FOR OTHER TOKENS, YOU NEED TO USE THE CORRECT DECIMALS.
+
+			you can use the GET_NEAR_SWAP_TOKENS tool to get the decimals of the origin token.
 		`)
 		.withTools(...tools)
 		.withSession(
@@ -47,6 +66,19 @@ async function main() {
 	if (!runner || !session) {
 		throw new Error("Failed to create agent");
 	}
+
+	// call GET_NEAR_SWAP_TOKENS to feed agent early with available tokens
+	runner.runAsync({
+		userId: "cli-user",
+		sessionId: session.id,
+		newMessage: {
+			parts: [
+				{
+					text: "Call the GET_NEAR_SWAP_TOKENS tool and remember the data from this tool call for future use",
+				},
+			],
+		},
+	});
 
 	s.stop("✅ Agent ready!");
 
