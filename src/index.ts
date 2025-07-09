@@ -1,25 +1,32 @@
 import { cancel, intro, isCancel, outro, spinner, text } from "@clack/prompts";
 import {
 	AgentBuilder,
-	type BaseTool,
 	InMemorySessionService,
 	McpNearIntentSwaps,
-	McpToolset,
 } from "@iqai/adk";
-import { bold, cyan, dim, green, red, yellow } from "colorette";
+import { blue, bold, cyan, dim, green, magenta, red, yellow } from "colorette";
 import dedent from "dedent";
 import { config } from "dotenv";
 import { env } from "./env";
+import { NearTransferTool } from "./tools/near-transfer";
 
 config();
 
-let nearMcpTools: BaseTool[];
+// Suppress deprecation warnings for cleaner demo output
+process.removeAllListeners("warning");
+process.on("warning", () => {});
 
 async function main() {
+	// Clear screen for clean demo start
+	console.clear();
+
 	intro(bold(cyan("🚀 NEAR Intent Swap Agent CLI")));
+	console.log(dim("━".repeat(60)));
+	console.log(bold(magenta("🌟 Powered by AI • Built for NEAR Protocol")));
+	console.log(dim("━".repeat(60)));
 
 	const s = spinner();
-	s.start("Initializing agent...");
+	s.start(cyan("🔧 Initializing agent..."));
 
 	// Setup NEAR Intent Swaps tools
 	const toolset = McpNearIntentSwaps({
@@ -28,22 +35,7 @@ async function main() {
 		},
 	});
 
-	nearMcpTools = await new McpToolset({
-		name: "NEAR MCP Client",
-		description: "Client for NEAR protocol",
-		retryOptions: {
-			maxRetries: 2,
-			initialDelay: 200,
-		},
-		transport: {
-			mode: "stdio",
-			command: "pnpm",
-			args: ["dlx", "@nearai/near-mcp", "run"],
-			env: {
-				PATH: env.PATH,
-			},
-		},
-	}).getTools();
+	const nearTransferTool = new NearTransferTool();
 
 	const tools = await toolset.getTools();
 
@@ -76,9 +68,14 @@ async function main() {
 
 			SIMILARLY FOR OTHER TOKENS, YOU NEED TO USE THE CORRECT DECIMALS.
 
-			you can use the GET_NEAR_SWAP_TOKENS tool to get the decimals of the origin token.
+			IMPORTANT:
+			USE THIS : ${env.USER_ACCOUNT_ID} AS THE RECIPIENT ADDRESS & REFUND ADDRESS FOR ALL NEAR TRANSFERS.
+			DO NOT ASK USER TO PROVIDE THE RECIPIENT ADDRESS OR REFUND ADDRESS, USE THE ONE ABOVE.
+
+			IMPORTANT:
+			USE THE near_token_transfer TOOL TO DO THE TRANSFERS AND NEVER ASK THE USER TO PROVIDE TRANSACTION HASHES INSTEAD. ASK USERS PERMISSION WHEN YOU WANT TO DO THE TRANSFER.
 		`)
-		.withTools(...tools, ...nearMcpTools)
+		.withTools(...tools, nearTransferTool)
 		.withSession(
 			new InMemorySessionService(),
 			"cli-user",
@@ -89,31 +86,10 @@ async function main() {
 	if (!runner || !session) {
 		throw new Error("Failed to create agent");
 	}
-	s.stop("✅ Agent created");
-	s.start("Importing NEAR account...");
-	// import near account
-	for await (const event of runner.runAsync({
-		userId: "cli-user",
-		sessionId: session.id,
-		newMessage: {
-			parts: [
-				{
-					text: `Use the system_import_account tool to import my NEAR account on mainnet. Use these parameters:
-- op: "import_from_private_key"
-- accountId: "${env.USER_ACCOUNT_ID}"
-- privateKey: "${env.USER_ACCOUNT_KEY}"
-- networkId: "mainnet"
-NO CONFIRMATION REQUIRED. JUST DO IT GO!
-`,
-				},
-			],
-		},
-	})) {
-		// do nothing
-	}
-	s.stop("✅ Account imported");
-	// call GET_NEAR_SWAP_TOKENS to feed agent early with available tokens
-	s.start("Doing final checks...");
+
+	s.stop(green("✅ Agent created"));
+
+	s.start(blue("🔍 Loading token data..."));
 	for await (const event of runner.runAsync({
 		userId: "cli-user",
 		sessionId: session.id,
@@ -127,17 +103,19 @@ NO CONFIRMATION REQUIRED. JUST DO IT GO!
 	})) {
 		// do nothing
 	}
-	s.stop("✅ Agent ready!");
-	console.log(
-		dim("Ask me about NEAR token swaps, prices, or DeFi operations."),
-	);
-	console.log(dim("Type 'quit' or 'exit' to end the conversation.\n"));
+	s.stop(green("✅ Ready to swap!"));
+
+	console.log(`\n${dim("━".repeat(60))}`);
+	console.log(bold(green("🎯 NEAR Intent Swap Agent Ready")));
+	console.log(dim("💡 Ask me about token swaps, prices, or DeFi operations"));
+	console.log(dim("💬 Type 'quit' or 'exit' to end the conversation"));
+	console.log(`${dim("━".repeat(60))}\n`);
 
 	// Main conversation loop
 	while (true) {
 		const userInput = await text({
-			message: yellow("💬 You:"),
-			placeholder: "What would you like to know about NEAR swaps?",
+			message: bold(yellow("💬 You:")),
+			placeholder: "What would you like to swap today?",
 			validate: (value) => {
 				if (!value || value.trim().length === 0) {
 					return "Please enter a message";
@@ -159,7 +137,7 @@ NO CONFIRMATION REQUIRED. JUST DO IT GO!
 		}
 
 		const spinner = s;
-		spinner.start("🤔 Thinking...");
+		spinner.start(magenta("🤔 Processing your request..."));
 
 		try {
 			let response = "";
@@ -181,7 +159,8 @@ NO CONFIRMATION REQUIRED. JUST DO IT GO!
 			spinner.stop();
 
 			if (response) {
-				console.log(`\n${bold(cyan("🤖 Agent:"))}\n${green(response)}\n`);
+				console.log(`\n${bold(cyan("🤖 Agent:"))}`);
+				console.log(`${green(response)}\n`);
 			} else {
 				console.log(`\n${bold(red("❌ No response received"))}\n`);
 			}
@@ -193,7 +172,9 @@ NO CONFIRMATION REQUIRED. JUST DO IT GO!
 		}
 	}
 
-	outro(bold(green("Thanks for using NEAR Intent Swap Agent! 👋")));
+	console.log(`\n${dim("━".repeat(60))}`);
+	outro(bold(green("Thanks for using NEAR Intent Swap Agent! 🚀✨")));
+	console.log(dim("━".repeat(60)));
 }
 
 process.on("SIGINT", () => {

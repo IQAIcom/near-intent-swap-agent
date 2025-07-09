@@ -18,8 +18,8 @@ const keyPairSchema = z.custom<KeyPairString>(
 export const envSchema = z.object({
 	DEBUG: z.stringbool().default(false),
 	GOOGLE_API_KEY: z.string(),
-	USER_ACCOUNT_ID: z.string().optional(),
-	USER_ACCOUNT_KEY: keyPairSchema.optional(),
+	USER_ACCOUNT_ID: z.string().min(1),
+	USER_ACCOUNT_KEY: keyPairSchema,
 	NEAR_NODE_URL: z
 		.string()
 		.default("https://near.blockpi.network/v1/rpc/public"),
