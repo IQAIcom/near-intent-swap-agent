@@ -1,13 +1,19 @@
 import { cancel, intro, isCancel, outro, spinner, text } from "@clack/prompts";
 import {
 	AgentBuilder,
+	type BaseTool,
 	InMemorySessionService,
 	McpNearIntentSwaps,
+	McpToolset,
 } from "@iqai/adk";
 import { bold, cyan, dim, green, red, yellow } from "colorette";
 import dedent from "dedent";
-import * as dotenv from "dotenv";
-dotenv.config();
+import { config } from "dotenv";
+import { env } from "./env";
+
+config();
+
+let nearMcpTools: BaseTool[];
 
 async function main() {
 	intro(bold(cyan("🚀 NEAR Intent Swap Agent CLI")));
@@ -21,6 +27,23 @@ async function main() {
 			NEAR_SWAP_JWT_TOKEN: process.env.NEAR_SWAP_JWT_TOKEN,
 		},
 	});
+
+	nearMcpTools = await new McpToolset({
+		name: "NEAR MCP Client",
+		description: "Client for NEAR protocol",
+		retryOptions: {
+			maxRetries: 2,
+			initialDelay: 200,
+		},
+		transport: {
+			mode: "stdio",
+			command: "pnpm",
+			args: ["dlx", "@nearai/near-mcp", "run"],
+			env: {
+				PATH: env.PATH,
+			},
+		},
+	}).getTools();
 
 	const tools = await toolset.getTools();
 
@@ -55,7 +78,7 @@ async function main() {
 
 			you can use the GET_NEAR_SWAP_TOKENS tool to get the decimals of the origin token.
 		`)
-		.withTools(...tools)
+		.withTools(...tools, ...nearMcpTools)
 		.withSession(
 			new InMemorySessionService(),
 			"cli-user",
@@ -66,9 +89,32 @@ async function main() {
 	if (!runner || !session) {
 		throw new Error("Failed to create agent");
 	}
-
+	s.stop("✅ Agent created");
+	s.start("Importing NEAR account...");
+	// import near account
+	for await (const event of runner.runAsync({
+		userId: "cli-user",
+		sessionId: session.id,
+		newMessage: {
+			parts: [
+				{
+					text: `Use the system_import_account tool to import my NEAR account on mainnet. Use these parameters:
+- op: "import_from_private_key"
+- accountId: "${env.USER_ACCOUNT_ID}"
+- privateKey: "${env.USER_ACCOUNT_KEY}"
+- networkId: "mainnet"
+NO CONFIRMATION REQUIRED. JUST DO IT GO!
+`,
+				},
+			],
+		},
+	})) {
+		// do nothing
+	}
+	s.stop("✅ Account imported");
 	// call GET_NEAR_SWAP_TOKENS to feed agent early with available tokens
-	runner.runAsync({
+	s.start("Doing final checks...");
+	for await (const event of runner.runAsync({
 		userId: "cli-user",
 		sessionId: session.id,
 		newMessage: {
@@ -78,10 +124,10 @@ async function main() {
 				},
 			],
 		},
-	});
-
+	})) {
+		// do nothing
+	}
 	s.stop("✅ Agent ready!");
-
 	console.log(
 		dim("Ask me about NEAR token swaps, prices, or DeFi operations."),
 	);
