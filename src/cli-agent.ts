@@ -7,6 +7,19 @@ import {
 	type Session,
 } from "@iqai/adk";
 import { blue, bold, cyan, dim, green, magenta, red, yellow } from "colorette";
+import { marked } from "marked";
+import { markedTerminal } from "marked-terminal";
+
+// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+marked.use(markedTerminal() as any);
+
+/**
+ * This function is used to parse markdown to terminal
+ */
+export const termParsedMd = (markdownString: string) => {
+	return marked.parse(markdownString);
+};
+
 import {
 	AGENT_DESCRIPTION,
 	AGENT_INSTRUCTIONS,
@@ -150,7 +163,7 @@ export class NearSwapAgentCLI {
 
 				if (response) {
 					console.log(`\n${bold(cyan("🤖 Agent:"))}`);
-					console.log(`${green(response)}\n`);
+					console.log(`${termParsedMd(response)}\n`);
 				} else {
 					console.log(`\n${bold(red("❌ No response received"))}\n`);
 				}
