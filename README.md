@@ -1,6 +1,6 @@
 # 🔄 NEAR Intent Swap Agent
 
-A CLI agent for intent-driven token swaps on the NEAR blockchain, built with [`@iqai/adk`](https://github.com/IQAICOM/adk-ts). This project enables safe, automated, and user-friendly NEAR token swaps using natural language prompts.
+A CLI agent for intent-driven token swaps on the NEAR blockchain using Intents powered by 1click api, built with [`@iqai/adk`](https://github.com/IQAICOM/adk-ts). This project enables safe, automated, and user-friendly NEAR token swaps using natural language prompts.
 
 ## ✨ Features
 - Intent-based NEAR token swaps via CLI
