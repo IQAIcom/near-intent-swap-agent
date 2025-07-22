@@ -44,19 +44,6 @@ A CLI agent for intent-driven token swaps on the NEAR blockchain using Intents p
 | `DEBUG`             | Optional | Set to "true" for debug output                                   |
 | `PATH`              | Yes      | System PATH (inherited automatically in most environments)       |
 
-## 📁 Project Structure
-```
-├── src/
-│   ├── index.ts         # CLI entrypoint
-│   ├── cli-agent.ts     # Main CLI agent class (handles user interaction and agent logic)
-│   ├── prompts.ts       # Prompt/instruction text for the agent
-│   ├── env.ts           # Environment variable validation and config
-│   └── tools/
-│       └── near-transfer.ts  # NEAR transfer tool implementation
-├── example.env          # Example environment file
-├── package.json         # Scripts and dependencies
-```
-
 ## 🧑‍💻 Usage
 - Start the CLI and follow prompts to perform NEAR swaps
 - The agent will import your NEAR account (if credentials are provided) and fetch available tokens.
