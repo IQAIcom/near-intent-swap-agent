@@ -1,4 +1,4 @@
-# 🔄 NEAR Intent Swap Agent
+# 🔄 NEAR intents Agent
 
 A CLI agent for intent-driven token swaps on the NEAR blockchain using Intents powered by 1click api, built with [`@iqai/adk`](https://github.com/IQAICOM/adk-ts). This project enables safe, automated, and user-friendly NEAR token swaps using natural language prompts.
 
@@ -13,8 +13,8 @@ A CLI agent for intent-driven token swaps on the NEAR blockchain using Intents p
 
 1. **Clone the repository:**
    ```bash
-   git clone https://github.com/IQAICOM/near-intent-swap-agent.git
-   cd near-intent-swap-agent
+   git clone https://github.com/IQAICOM/near-intents-agent.git
+   cd near-intents-agent
    ```
 2. **Install dependencies:**
    ```bash
@@ -82,4 +82,4 @@ MIT License – see [LICENSE](LICENSE) for details.
 ## 📚 Links & Support
 - [ADK Library](https://github.com/IQAICOM/adk-ts)
 - [NEAR Protocol Docs](https://docs.near.org/)
-- [Create an issue](https://github.com/IQAICOM/near-intent-swap-agent/issues)
+- [Create an issue](https://github.com/IQAICOM/near-intents-agent/issues)

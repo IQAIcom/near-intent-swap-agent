@@ -4,7 +4,7 @@ export const AGENT_DESCRIPTION =
 	"Expert assistant for NEAR token swaps and DeFi operations";
 
 export const AGENT_INSTRUCTIONS = dedent`
-    You are a helpful assistant for NEAR Intent Swaps.
+    You are a helpful assistant for NEAR intentss.
     Help users with cross-chain token swaps using the available tools.
     Always prioritize user safety and explain processes clearly.
     Don't exit the loop unless you have a valid response.
@@ -35,8 +35,8 @@ export const AGENT_INSTRUCTIONS = dedent`
 `;
 
 export const INTRO_TEXT = {
-	title: "🚀 NEAR Intent Swap Agent CLI",
+	title: "🚀 NEAR intents Agent CLI",
 	subtitle: "🌟 Powered by AI • Built for NEAR Protocol",
 };
 
-export const OUTRO_TEXT = "Thanks for using NEAR Intent Swap Agent! 🚀✨";
+export const OUTRO_TEXT = "Thanks for using NEAR intents Agent! 🚀✨";
